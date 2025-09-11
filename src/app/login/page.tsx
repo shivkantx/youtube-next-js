@@ -12,20 +12,37 @@ function LoginPage() {
     password: "",
   });
 
+  const [buttonDisabled, setButtonDisabled] = React.useState(true);
+  const [loading, setLoading] = React.useState(false);
+
   const onLogin = async () => {
-    console.log("User data:", user);
-    // Later: await axios.post("/api/login", user);
-    router.push("/"); // redirect after login
+    try {
+      setLoading(true);
+      const response = await axios.post("/api/users/login", user); //
+      console.log("Login success", response.data);
+      toast.success(response.data.message || "Login successful");
+      router.push("/profile");
+    } catch (error: any) {
+      console.log("Login failed", error.response?.data || error.message);
+      toast.error(error.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  React.useEffect(() => {
+    setButtonDisabled(!(user.email.length > 0 && user.password.length > 0));
+  }, [user]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">
-          Welcome Back
+          {loading ? "Logging in..." : "Welcome Back"}
         </h1>
 
         <div className="flex flex-col gap-4">
+          {/* Email input */}
           <div>
             <label
               htmlFor="email"
@@ -43,6 +60,7 @@ function LoginPage() {
             />
           </div>
 
+          {/* Password input */}
           <div>
             <label
               htmlFor="password"
@@ -60,11 +78,17 @@ function LoginPage() {
             />
           </div>
 
+          {/* Login button */}
           <button
             onClick={onLogin}
-            className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition"
+            disabled={buttonDisabled || loading} // ✅ disable button
+            className={`w-full py-3 rounded-lg font-semibold transition ${
+              buttonDisabled || loading
+                ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
 
           <p className="text-center text-sm text-gray-600 mt-4">
