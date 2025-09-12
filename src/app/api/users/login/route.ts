@@ -8,10 +8,16 @@ connect();
 
 export async function POST(request: NextRequest) {
   try {
-    const reqBody = await request.json();
-    const { email, password } = reqBody;
+    const { email, password } = await request.json();
 
-    // check if user exist
+    if (!email || !password) {
+      return NextResponse.json(
+        { error: "Email and password are required" },
+        { status: 400 }
+      );
+    }
+
+    // check if user exists
     const user = await User.findOne({ email });
     if (!user) {
       return NextResponse.json(
@@ -20,31 +26,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if password correct
+    // check password
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
       return NextResponse.json({ error: "Invalid password" }, { status: 400 });
     }
 
-    // create token data
-    const tokenData = {
-      id: user._id,
-      email: user.email,
-      username: user.username,
-    };
-    // Later: create and return JWT token here
-    const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET!, {
-      expiresIn: "1d",
-    });
+    // create token
+    if (!process.env.TOKEN_SECRET) {
+      throw new Error("TOKEN_SECRET is missing in .env");
+    }
 
+    const token = jwt.sign(
+      { id: user._id, email: user.email, username: user.username },
+      process.env.TOKEN_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    // success response with cookie
     const response = NextResponse.json({
       message: "Login successful",
-      status: true,
+      user: {
+        id: user._id,
+        email: user.email,
+        username: user.username,
+      },
     });
 
     response.cookies.set("token", token, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24, // 1 day
+      path: "/",
     });
+
     return response;
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
