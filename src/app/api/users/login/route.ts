@@ -1,23 +1,18 @@
 import { connect } from "@/dbConfig/dbConfig";
-import User from "@/models/userModel.js";
+import User from "@/models/userModel";
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
+import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 connect();
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    const reqBody = await request.json();
+    const { email, password } = reqBody;
+    console.log(reqBody);
 
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: "Email and password are required" },
-        { status: 400 }
-      );
-    }
-
-    // check if user exists
+    //check if user exists
     const user = await User.findOne({ email });
     if (!user) {
       return NextResponse.json(
@@ -25,42 +20,33 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+    console.log("user exists");
 
-    // check password
-    const validPassword = await bcrypt.compare(password, user.password);
+    //check if password is correct
+    const validPassword = await bcryptjs.compare(password, user.password);
     if (!validPassword) {
       return NextResponse.json({ error: "Invalid password" }, { status: 400 });
     }
+    console.log(user);
 
-    // create token
-    if (!process.env.TOKEN_SECRET) {
-      throw new Error("TOKEN_SECRET is missing in .env");
-    }
+    //create token data
+    const tokenData = {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+    };
+    //create token
+    const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET!, {
+      expiresIn: "1d",
+    });
 
-    const token = jwt.sign(
-      { id: user._id, email: user.email, username: user.username },
-      process.env.TOKEN_SECRET,
-      { expiresIn: "1d" }
-    );
-
-    // success response with cookie
     const response = NextResponse.json({
       message: "Login successful",
-      user: {
-        id: user._id,
-        email: user.email,
-        username: user.username,
-      },
+      success: true,
     });
-
     response.cookies.set("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 24, // 1 day
-      path: "/",
     });
-
     return response;
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

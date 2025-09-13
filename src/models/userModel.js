@@ -1,7 +1,6 @@
-import { verify } from "crypto";
 import mongoose from "mongoose";
 
-const userSchema = mongoose.Schema(
+const userSchema = new mongoose.Schema(
   {
     username: {
       type: String,
@@ -19,7 +18,7 @@ const userSchema = mongoose.Schema(
       type: String,
       required: [true, "Password is required"],
       minlength: [6, "Password must be at least 6 characters long"],
-      select: false, // Exclude password from queries by default
+      // ⚠️ Removed select: false so password is always available
     },
     isVerified: {
       type: Boolean,
@@ -35,9 +34,11 @@ const userSchema = mongoose.Schema(
     verifyTokenExpiry: Date,
   },
   {
-    timestamps: true, // Automatically manage createdAt and updatedAt fields
+    timestamps: true,
   }
 );
-const User = mongoose.models.users || mongoose.model("User", userSchema);
+
+// ✅ Fix model naming
+const User = mongoose.models.User || mongoose.model("User", userSchema);
 
 export default User;

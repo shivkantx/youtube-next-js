@@ -1,27 +1,28 @@
 import mongoose from "mongoose";
 
+let isConnected = false; // track connection state
+
 export async function connect() {
-  try {
-    mongoose.connect(process.env.MONGO_URL);
-
-    const connection = mongoose.connection;
-
-    connection.on("connected", () => {
-      console.log("MongoDB connected succesfully");
-    });
-
-    connection.on("error", (err) => {
-      console.log(
-        "MongoDB connection failed, please make sure mongodb is running." + err
-      );
-      process.exit();
-    });
-
-    connection.on("disconnected", () => {
-      console.log("MongoDB disconnected");
-    });
-  } catch (error) {
-    console.log("something wennt wrong");
-    console.log(error);
+  if (isConnected) {
+    console.log("✅ Using existing MongoDB connection");
+    return;
   }
+
+  try {
+    const db = await mongoose.connect(process.env.MONGO_URL as string);
+
+    isConnected = !!db.connections[0].readyState;
+
+    console.log("🚀 MongoDB connected successfully");
+  } catch (error) {
+    console.error("❌ MongoDB connection failed:", error);
+    process.exit(1);
+  }
+
+  const connection = mongoose.connection;
+
+  connection.on("disconnected", () => {
+    console.log("⚠️ MongoDB disconnected");
+    isConnected = false;
+  });
 }
