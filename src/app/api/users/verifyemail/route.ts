@@ -1,17 +1,24 @@
 import { connect } from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
 
 connect();
 
 export async function POST(request: NextRequest) {
   try {
-    const reqBody = await request.json();
-    const { token } = reqBody;
-    console.log(token);
+    const { token } = await request.json();
+    console.log("Raw token from request:", token);
+
+    if (!token) {
+      return NextResponse.json({ error: "Token is required" }, { status: 400 });
+    }
+
+    // 🔑 Hash the raw token before lookup
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
     const user = await User.findOne({
-      verifyToken: token,
+      verifyToken: hashedToken,
       verifyTokenExpiry: { $gt: Date.now() },
     });
 
@@ -21,8 +28,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    console.log(user);
 
+    // ✅ Verify user
     user.isVerified = true;
     user.verifyToken = undefined;
     user.verifyTokenExpiry = undefined;
@@ -33,6 +40,7 @@ export async function POST(request: NextRequest) {
       success: true,
     });
   } catch (error: any) {
+    console.error("Verification error:", error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

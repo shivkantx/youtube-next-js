@@ -12,16 +12,17 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.nextUrl));
   }
 
-  // If user is trying to access a protected path without token, redirect to login
+  // Protected paths (require login)
   const isProtectedPath = pathname === "/" || pathname === "/profile";
+
   if (isProtectedPath && !token) {
     return NextResponse.redirect(new URL("/login", request.nextUrl));
   }
 
-  // Otherwise, allow the request
+  // Allow access to /verifyemail without login
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/", "/profile", "/login", "/signup"],
+  matcher: ["/", "/profile", "/login", "/signup", "/verifyemail"],
 };
