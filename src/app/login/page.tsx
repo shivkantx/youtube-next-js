@@ -18,7 +18,7 @@ function LoginPage() {
   const onLogin = async () => {
     try {
       setLoading(true);
-      const response = await axios.post("/api/users/login", user); //
+      const response = await axios.post("/api/users/login", user);
       console.log("Login success", response.data);
       toast.success(response.data.message || "Login successful");
       router.push("/profile");
@@ -35,28 +35,30 @@ function LoginPage() {
   }, [user]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">
-          {loading ? "Logging in..." : "Welcome Back"}
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-gray-100">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
+        {/* Title */}
+        <h1 className="text-3xl font-extrabold text-center text-gray-800 mb-6">
+          {loading ? "Logging in..." : "Welcome Back 👋"}
         </h1>
 
-        <div className="flex flex-col gap-4">
+        {/* Inputs */}
+        <div className="flex flex-col gap-5">
           {/* Email input */}
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-600 mb-1"
+              className="block text-sm font-medium text-gray-700 mb-1"
             >
               Email
             </label>
             <input
               id="email"
-              placeholder="Enter email"
+              placeholder="you@example.com"
               type="email"
               value={user.email}
               onChange={(e) => setUser({ ...user, email: e.target.value })}
-              className="w-full p-3 border text-gray-600 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full p-3 border text-gray-700 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
 
@@ -64,37 +66,57 @@ function LoginPage() {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-600 mb-1"
+              className="block text-sm font-medium text-gray-700 mb-1"
             >
               Password
             </label>
             <input
               id="password"
-              placeholder="Enter password"
+              placeholder="••••••••"
               type="password"
               value={user.password}
               onChange={(e) => setUser({ ...user, password: e.target.value })}
-              className="w-full p-3 border text-gray-600 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full p-3 border text-gray-700 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
 
           {/* Login button */}
           <button
             onClick={onLogin}
-            disabled={buttonDisabled || loading} // ✅ disable button
-            className={`w-full py-3 rounded-lg font-semibold transition ${
+            disabled={buttonDisabled || loading}
+            className={`w-full py-3 rounded-lg font-semibold transition-all duration-300 ${
               buttonDisabled || loading
-                ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700"
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700 hover:scale-[1.02]"
             }`}
           >
             {loading ? "Logging in..." : "Login"}
           </button>
 
-          <p className="text-center text-sm text-gray-600 mt-4">
+          {/* Divider */}
+          <div className="flex items-center justify-center my-2">
+            <span className="w-1/5 border-b border-gray-300"></span>
+            <span className="px-2 text-gray-400 text-sm">or</span>
+            <span className="w-1/5 border-b border-gray-300"></span>
+          </div>
+
+          {/* Links */}
+          <p className="text-center text-sm text-gray-600">
             Don’t have an account?{" "}
-            <Link href="/signup" className="text-blue-500 hover:underline">
+            <Link
+              href="/signup"
+              className="text-blue-600 font-medium hover:underline"
+            >
               Sign Up
+            </Link>
+          </p>
+          <p className="text-center text-sm text-gray-600">
+            Forgot your password?{" "}
+            <Link
+              href="/forgot-password"
+              className="text-blue-600 font-medium hover:underline"
+            >
+              Reset it
             </Link>
           </p>
         </div>

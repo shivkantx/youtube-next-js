@@ -42,7 +42,6 @@ export const sendEmail = async ({
     });
 
     // Email options
-    // Email options
     const mailOptions = {
       from: "shivkant639624@gmail.com",
       to: email,
