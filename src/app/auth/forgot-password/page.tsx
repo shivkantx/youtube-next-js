@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(""); // ✅ new state
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,9 +20,16 @@ const ForgotPasswordPage = () => {
     try {
       setLoading(true);
       const response = await axios.post("/api/users/forgotpassword", { email });
-      toast.success(response.data.message || "Password reset email sent");
+
+      const message =
+        response.data.message ||
+        "Mail has been sent. Please check your inbox to reset your password.";
+
+      toast.success(message);
+      setSuccessMessage(message); // ✅ update state for UI message
     } catch (error: any) {
       toast.error(error.response?.data?.error || "Something went wrong");
+      setSuccessMessage(""); // clear message if error happens
     } finally {
       setLoading(false);
     }
@@ -33,6 +41,12 @@ const ForgotPasswordPage = () => {
         <h1 className="text-3xl font-extrabold text-center text-gray-800 mb-6">
           Forgot Password
         </h1>
+
+        {successMessage && ( // ✅ show persistent message
+          <div className="mb-4 p-3 rounded-lg bg-green-100 text-green-700 text-sm font-medium border border-green-300">
+            {successMessage}
+          </div>
+        )}
 
         <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
           <div>
