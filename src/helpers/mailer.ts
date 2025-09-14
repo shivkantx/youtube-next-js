@@ -41,6 +41,12 @@ export const sendEmail = async ({
       },
     });
 
+    // Decide URL based on emailtype
+    const link =
+      emailtype === "VERIFY"
+        ? `${process.env.DOMAIN}/verifyemail?token=${rawToken}`
+        : `${process.env.DOMAIN}/auth/reset-password?token=${rawToken}`;
+
     // Email options
     const mailOptions = {
       from: "shivkant639624@gmail.com",
@@ -48,14 +54,13 @@ export const sendEmail = async ({
       subject:
         emailtype === "VERIFY" ? "Verify your email" : "Reset your password",
       html: `
-    <p>Click <a href="${process.env.DOMAIN}/verifyemail?token=${rawToken}">
-      here</a> to ${
+        <p>Click <a href="${link}">here</a> to ${
         emailtype === "VERIFY" ? "verify your email" : "reset your password"
       }.</p>
-    <p>If the above link doesn't work, copy and paste this into your browser:</p>
-    <p>${process.env.DOMAIN}/verifyemail?token=${rawToken}</p>
-    <p>This link will expire in 1 hour.</p>
-  `,
+        <p>If the above link doesn't work, copy and paste this into your browser:</p>
+        <p>${link}</p>
+        <p>This link will expire in 1 hour.</p>
+      `,
     };
 
     // Send mail

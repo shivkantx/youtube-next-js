@@ -19,8 +19,7 @@ const ForgotPasswordPage = () => {
     try {
       setLoading(true);
       const response = await axios.post("/api/users/forgotpassword", { email });
-      toast.success(response.data.message || "Check your email for reset link");
-      setEmail(""); // Clear input
+      toast.success(response.data.message || "Password reset email sent");
     } catch (error: any) {
       toast.error(error.response?.data?.error || "Something went wrong");
     } finally {
@@ -41,7 +40,7 @@ const ForgotPasswordPage = () => {
               htmlFor="email"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Email
+              Email Address
             </label>
             <input
               id="email"

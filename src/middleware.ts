@@ -5,24 +5,39 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get("token")?.value;
 
-  const isPublicPath = pathname === "/login" || pathname === "/signup";
+  // Public paths (accessible without login)
+  const publicPaths = [
+    "/login",
+    "/signup",
+    "/verifyemail",
+    "/auth/forgot-password",
+    "/auth/reset-password",
+  ];
 
-  // If user has token and is trying to access login/signup, redirect home
-  if (isPublicPath && token) {
+  // If user is logged in and tries to access a public path, redirect home
+  if (publicPaths.includes(pathname) && token) {
     return NextResponse.redirect(new URL("/", request.nextUrl));
   }
 
   // Protected paths (require login)
-  const isProtectedPath = pathname === "/" || pathname === "/profile";
+  const protectedPaths = ["/", "/profile"];
 
-  if (isProtectedPath && !token) {
+  if (protectedPaths.includes(pathname) && !token) {
     return NextResponse.redirect(new URL("/login", request.nextUrl));
   }
 
-  // Allow access to /verifyemail without login
+  // Allow access otherwise
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/", "/profile", "/login", "/signup", "/verifyemail"],
+  matcher: [
+    "/",
+    "/profile",
+    "/login",
+    "/signup",
+    "/verifyemail",
+    "/auth/forgot-password",
+    "/auth/reset-password",
+  ],
 };

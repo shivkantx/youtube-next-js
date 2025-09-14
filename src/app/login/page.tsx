@@ -113,7 +113,7 @@ function LoginPage() {
           <p className="text-center text-sm text-gray-600">
             Forgot your password?{" "}
             <Link
-              href="/forgot-password"
+              href="auth/forgot-password"
               className="text-blue-600 font-medium hover:underline"
             >
               Reset it
