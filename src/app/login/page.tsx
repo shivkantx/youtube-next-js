@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 
 function LoginPage() {
   const router = useRouter();
+
   const [user, setUser] = React.useState({
     email: "",
     password: "",
@@ -14,17 +15,23 @@ function LoginPage() {
 
   const [buttonDisabled, setButtonDisabled] = React.useState(true);
   const [loading, setLoading] = React.useState(false);
+  const [errorMsg, setErrorMsg] = React.useState(""); // inline error message
 
   const onLogin = async () => {
     try {
       setLoading(true);
+      setErrorMsg(""); // reset any previous error
       const response = await axios.post("/api/users/login", user);
+
       console.log("Login success", response.data);
       toast.success(response.data.message || "Login successful");
+
       router.push("/profile");
     } catch (error: any) {
       console.log("Login failed", error.response?.data || error.message);
-      toast.error(error.response?.data?.message || "Login failed");
+      const msg = error.response?.data?.message || "Login failed";
+      toast.error(msg);
+      setErrorMsg(msg); // also show inline
     } finally {
       setLoading(false);
     }
@@ -39,7 +46,7 @@ function LoginPage() {
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
         {/* Title */}
         <h1 className="text-3xl font-extrabold text-center text-gray-800 mb-6">
-          {loading ? "Logging in..." : "Welcome Back 👋"}
+          {loading ? "Logging in..." : "Login to Your Account"}
         </h1>
 
         {/* Inputs */}
@@ -80,6 +87,11 @@ function LoginPage() {
             />
           </div>
 
+          {/* Inline error */}
+          {errorMsg && (
+            <p className="text-red-500 text-sm text-center">{errorMsg}</p>
+          )}
+
           {/* Login button */}
           <button
             onClick={onLogin}
@@ -113,7 +125,7 @@ function LoginPage() {
           <p className="text-center text-sm text-gray-600">
             Forgot your password?{" "}
             <Link
-              href="auth/forgot-password"
+              href="/auth/forgot-password"
               className="text-blue-600 font-medium hover:underline"
             >
               Reset it

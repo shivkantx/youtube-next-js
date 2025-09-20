@@ -8,7 +8,7 @@ import Link from "next/link";
 
 function HomePage() {
   const router = useRouter();
-  const [data, setData] = React.useState("nothing");
+  const [user, setUser] = React.useState<any>(null);
 
   const logout = async () => {
     try {
@@ -24,7 +24,7 @@ function HomePage() {
   const getUserDetails = async () => {
     try {
       const res = await axios.get("/api/users/me");
-      setData(res.data.data._id);
+      setUser(res.data.data); // full user object { _id, username, email }
     } catch (error: any) {
       console.log(error.message);
     }
@@ -65,19 +65,28 @@ function HomePage() {
         {/* User Info Card */}
         <div className="bg-white shadow-xl rounded-xl p-8 text-center border border-gray-200">
           <h2 className="text-2xl font-semibold mb-4">Your Account</h2>
-          {data === "nothing" ? (
+
+          {!user ? (
             <p className="text-gray-600">No user data available</p>
           ) : (
-            <Link
-              href={`/profile/${data}`}
-              className="text-blue-600 underline hover:text-blue-800 transition"
-            >
-              User ID: {data}
-            </Link>
+            <div className="space-y-3">
+              <p className="text-lg font-bold text-gray-800">
+                Username: {user.username}
+              </p>
+              <p className="text-lg text-gray-700">Email: {user.email}</p>
+              <Link
+                href={`/profile/${user._id}`}
+                className="block text-blue-600 underline hover:text-blue-800 transition"
+              >
+                User ID: {user._id}
+              </Link>
+            </div>
           )}
+
           <p className="mt-3 text-gray-500">
             Keep your account secure and explore more options.
           </p>
+
           <button
             onClick={getUserDetails}
             className="mt-6 px-6 py-2 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 hover:scale-105 transition-all duration-300 cursor-pointer"
@@ -89,7 +98,7 @@ function HomePage() {
         {/* Quick Links */}
         <div className="grid gap-6 sm:grid-cols-3 text-center">
           <Link
-            href={`/profile/${data !== "nothing" ? data : ""}`}
+            href={`/profile/${user?._id || ""}`}
             className="p-6 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl shadow hover:shadow-lg transition"
           >
             <h3 className="text-lg font-bold text-blue-800">Profile</h3>
