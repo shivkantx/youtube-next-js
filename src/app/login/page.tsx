@@ -46,7 +46,7 @@ function LoginPage() {
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
         {/* Title */}
         <h1 className="text-3xl font-extrabold text-center text-gray-800 mb-6">
-          {loading ? "Logging in..." : "Login to Your Account"}
+          {loading ? "Logging in..." : "Login"}
         </h1>
 
         {/* Inputs */}
